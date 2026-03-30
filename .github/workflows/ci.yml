@@ -104,7 +104,7 @@ jobs:
       - name: Health checks
         run: |
           curl -sf http://localhost:9090/-/healthy  || (echo "Prometheus FAILED" && exit 1)
-          curl -sf http://localhost:3000/api/health || (echo "Grafana FAILED"    && exit 1)
+          curl -sf http://localhost:3000/api/health || { echo "Grafana FAILED"; docker logs grafana 2>&1 | tail -50; exit 1; }
           curl -sf http://localhost:9093/-/healthy  || (echo "Alertmanager FAILED" && exit 1)
           echo "All services healthy ✓"
 
