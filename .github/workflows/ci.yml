@@ -30,7 +30,7 @@ jobs:
             -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
             prom/prometheus:v2.51.2 \
             check rules \
-              /etc/prometheus/rules/*.yml
+              /etc/prometheus/rules/*.yml \
               /etc/prometheus/alerts/*.yml
 
   # ── Validate Alertmanager config ───────────────────
