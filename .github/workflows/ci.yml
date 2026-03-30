@@ -20,7 +20,7 @@ jobs:
           docker run --rm \
             --entrypoint promtool \
             -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
-            prom/prometheus:v3.51.2 \
+            prom/prometheus:v2.51.2 \
             check config /etc/prometheus/prometheus.yml
 
       - name: Validate alert rules
