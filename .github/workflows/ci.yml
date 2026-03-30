@@ -26,6 +26,7 @@ jobs:
       - name: Validate alert rules
         run: |
           docker run --rm \
+<<<<<<< HEAD
           --entrypoint promtool \
           -v ${{ github.workspace }}:/etc/prometheus:ro \
           prom/prometheus:v2.51.2 \
@@ -46,6 +47,14 @@ jobs:
             -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
             prom/prometheus:v2.51.2 \
             ls -R /etc/prometheus
+=======
+            --entrypoint promtool \
+            -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
+            prom/prometheus:v2.51.2 \
+            check rules \
+              /etc/prometheus/rules/host.rules.yml \
+              /etc/prometheus/alerts/app.rules.yml
+>>>>>>> 5720694 (refactor: reorganize prometheus alert rules structure)
 
   # ── Validate Alertmanager config ───────────────────
   validate-alertmanager:
@@ -120,3 +129,4 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose down -v
+
