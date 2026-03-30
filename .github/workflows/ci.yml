@@ -71,18 +71,34 @@ jobs:
 
       - name: Wait for services
         run: |
+          echo "Waiting for containers to initialize..."
+          sleep 10
+
           echo "Waiting for Prometheus..."
           for i in $(seq 1 30); do
-            curl -sf http://localhost:9090/-/healthy && break || sleep 2
+            if curl -sf http://localhost:9090/-/healthy; then
+              echo "Prometheus ready"
+              break
+            fi
+            sleep 2
           done
+
           echo "Waiting for Grafana..."
-          sleep 5
-          for i in $(seq 1 30); do
-            curl -sf http://localhost:3000/api/health && break || sleep 2
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3000/api/health; then
+              echo "Grafana ready"
+              break
+            fi
+            sleep 2
           done
+
           echo "Waiting for Alertmanager..."
-          for i in $(seq 1 20); do
-            curl -sf http://localhost:9093/-/healthy && break || sleep 2
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9093/-/healthy; then
+              echo "Alertmanager ready"
+              break
+            fi
+            sleep 2
           done
 
       - name: Health checks
