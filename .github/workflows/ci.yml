@@ -29,9 +29,9 @@ jobs:
           --entrypoint promtool \
           -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
           prom/prometheus:v2.51.2 \
-          check rules \
-            /etc/prometheus/rules/host.rules.yml \
-            /etc/prometheus/alerts/app.rules.yml
+            check rules \
+              /etc/prometheus/host.rules.yml \
+              /etc/prometheus/app.rules.yml
 
   # ── Validate Alertmanager config ───────────────────
   validate-alertmanager:
