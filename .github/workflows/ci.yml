@@ -30,8 +30,8 @@ jobs:
           -v ${{ github.workspace }}:/etc/prometheus:ro \
           prom/prometheus:v2.51.2 \
           check rules \
-            /etc/prometheus/prometheus/host.rules.yml \
-            /etc/prometheus/prometheus/app.rules.yml
+            /etc/prometheus/rules/host.rules.yml \
+            /etc/prometheus/alerts/app.rules.yml
 
       - name: Debug files inside container
         run: |
