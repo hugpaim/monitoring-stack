@@ -1,1 +1,82 @@
 
+groups:
+  - name: host.rules
+    interval: 30s
+    rules:
+
+      # ── CPU ───────────────────────────────────────────
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | printf \"%.1f\" }}% (threshold: 85%)"
+
+      - alert: CriticalCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary:     "Critical CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | printf \"%.1f\" }}% for more than 2 minutes"
+
+      # ── Memory ────────────────────────────────────────
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | printf \"%.1f\" }}% (threshold: 85%)"
+
+      - alert: CriticalMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary:     "Critical memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | printf \"%.1f\" }}%"
+
+      # ── Disk ──────────────────────────────────────────
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "Low disk space on {{ $labels.instance }}"
+          description: "Only {{ $value | printf \"%.1f\" }}% disk space remaining on /"
+
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary:     "Critical disk space on {{ $labels.instance }}"
+          description: "Only {{ $value | printf \"%.1f\" }}% disk space remaining — action required"
+
+      # ── Host availability ─────────────────────────────
+      - alert: HostDown
+        expr: up{job="node-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary:     "Host {{ $labels.instance }} is down"
+          description: "Node exporter is unreachable — host may be down"
+
+      # ── Network ───────────────────────────────────────
+      - alert: HighNetworkReceive
+        expr: rate(node_network_receive_bytes_total{device!="lo"}[5m]) > 100 * 1024 * 1024
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "High network receive on {{ $labels.instance }}"
+          description: "Receiving {{ $value | humanize }}B/s on {{ $labels.device }}"
