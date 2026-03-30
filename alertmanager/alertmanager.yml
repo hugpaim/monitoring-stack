@@ -1,0 +1,87 @@
+# ─────────────────────────────────────────────────────
+# alertmanager/alertmanager.yml
+# Routes alerts → Slack (warning) or PagerDuty (critical)
+# ─────────────────────────────────────────────────────
+
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alertmanager@yourdomain.com'
+  smtp_auth_username: 'your@gmail.com'
+  smtp_auth_password: 'your-app-password'
+
+# ── Templates ─────────────────────────────────────────
+# templates:
+#   - '/etc/alertmanager/templates/*.tmpl'
+
+# ── Routing ───────────────────────────────────────────
+route:
+  group_by:       ['alertname', 'job']
+  group_wait:     30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver:       'slack-warnings'   # default receiver
+
+  routes:
+    # Critical alerts → slack-critical (faster + different channel)
+    - matchers:
+        - severity = critical
+      receiver: slack-critical
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: false
+
+    # Warning alerts → default Slack channel
+    - matchers:
+        - severity = warning
+      receiver: slack-warnings
+      continue: false
+
+# ── Inhibit rules ─────────────────────────────────────
+inhibit_rules:
+  # If host is down, suppress all other alerts from that host
+  - source_matchers:
+      - alertname = HostDown
+    target_matchers:
+      - severity =~ "warning|critical"
+    equal: ['instance']
+
+# ── Receivers ─────────────────────────────────────────
+receivers:
+
+  - name: 'slack-warnings'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#alerts-warning'
+        send_resolved: true
+        icon_emoji: ':warning:'
+        title: '{{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          {{ end }}
+
+  - name: 'slack-critical'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#alerts-critical'
+        send_resolved: true
+        icon_emoji: ':fire:'
+        title: '🔥 CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Instance:* {{ .Labels.instance }}
+          {{ end }}
+
+  # ── Email receiver (optional) ───────────────────────
+  # - name: 'email-oncall'
+  #   email_configs:
+  #     - to: 'oncall@yourdomain.com'
+  #       send_resolved: true
+
+  # ── Null receiver (silence alerts) ──────────────────
+  - name: 'null'

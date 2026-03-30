@@ -1,0 +1,58 @@
+{
+  "title": "Containers Overview",
+  "uid": "containers-overview",
+  "version": 1,
+  "schemaVersion": 38,
+  "refresh": "15s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Running Containers",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "count(container_last_seen{name!=''})"
+      }]
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "Container CPU Usage %",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "rate(container_cpu_usage_seconds_total{name!=''}[1m]) * 100",
+        "legendFormat": "{{name}}"
+      }],
+      "fieldConfig": { "defaults": { "unit": "percent" } }
+    },
+    {
+      "id": 3, "type": "timeseries", "title": "Container Memory Usage",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "container_memory_usage_bytes{name!=''}",
+        "legendFormat": "{{name}}"
+      }],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Container Network RX",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "rate(container_network_receive_bytes_total{name!=''}[5m])",
+        "legendFormat": "{{name}}"
+      }],
+      "fieldConfig": { "defaults": { "unit": "Bps" } }
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Container Network TX",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "rate(container_network_transmit_bytes_total{name!=''}[5m])",
+        "legendFormat": "{{name}}"
+      }],
+      "fieldConfig": { "defaults": { "unit": "Bps" } }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+groups:
+  - name: app.rules
+    interval: 30s
+    rules:
+
+      # ── Service availability ───────────────────────────
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary:     "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} on {{ $labels.instance }} is not reachable"
+
+      # ── Container CPU ─────────────────────────────────
+      - alert: ContainerHighCPU
+        expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "Container {{ $labels.name }} high CPU"
+          description: "Container CPU usage is {{ $value | printf \"%.1f\" }}%"
+
+      # ── Container Memory ──────────────────────────────
+      - alert: ContainerHighMemory
+        expr: |
+          container_memory_usage_bytes{name!=""} /
+          container_spec_memory_limit_bytes{name!=""} * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "Container {{ $labels.name }} high memory"
+          description: "Container memory usage is {{ $value | printf \"%.1f\" }}% of limit"
+
+      # ── Container restart loop ────────────────────────
+      - alert: ContainerRestarting
+        expr: rate(container_last_seen{name!=""}[15m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "Container {{ $labels.name }} is restarting frequently"
+          description: "Container has restarted more than 3 times in 15 minutes"
+
+      # ── Prometheus config reload ───────────────────────
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary:     "Prometheus config reload failed"
+          description: "Prometheus failed to reload its configuration"
