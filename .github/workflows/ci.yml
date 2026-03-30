@@ -27,11 +27,11 @@ jobs:
         run: |
           docker run --rm \
           --entrypoint promtool \
-          -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
+          -v ${{ github.workspace }}:/etc/prometheus:ro \
           prom/prometheus:v2.51.2 \
-            check rules \
-              /etc/prometheus/host.rules.yml \
-              /etc/prometheus/app.rules.yml
+          check rules \
+            /etc/prometheus/prometheus/host.rules.yml \
+            /etc/prometheus/prometheus/app.rules.yml
 
       - name: Debug files inside container
         run: |
