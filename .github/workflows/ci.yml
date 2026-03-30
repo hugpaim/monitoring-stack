@@ -25,12 +25,13 @@ jobs:
 
       - name: Validate alert rules
         run: |
-          FILES=$(find prometheus/rules prometheus/alerts -name "*.yml")
           docker run --rm \
-            --entrypoint promtool \
-            -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
-            prom/prometheus:v2.51.2 \
-            check rules $FILES
+          --entrypoint promtool \
+          -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
+          prom/prometheus:v2.51.2 \
+          check rules \
+            /etc/prometheus/rules/host.rules.yml \
+            /etc/prometheus/alerts/app.rules.yml
 
   # ── Validate Alertmanager config ───────────────────
   validate-alertmanager:
