@@ -15,12 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate prometheus.yml
+       - name: Validate prometheus.yml
         run: |
           docker run --rm \
+            --entrypoint promtool \
             -v ${{ github.workspace }}/prometheus:/etc/prometheus:ro \
             prom/prometheus:v2.51.2 \
-            promtool check config /etc/prometheus/prometheus.yml
+            check config /etc/prometheus/prometheus.yml
 
       - name: Validate alert rules
         run: |
