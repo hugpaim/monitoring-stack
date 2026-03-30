@@ -43,9 +43,10 @@ jobs:
       - name: Validate alertmanager.yml
         run: |
           docker run --rm \
+            --entrypoint amtool \
             -v ${{ github.workspace }}/alertmanager:/etc/alertmanager:ro \
             prom/alertmanager:v0.27.0 \
-            amtool check-config /etc/alertmanager/alertmanager.yml
+            check-config /etc/alertmanager/alertmanager.yml
 
   # ── Validate docker-compose ────────────────────────
   validate-compose:
