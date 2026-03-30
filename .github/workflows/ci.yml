@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-       - name: Validate prometheus.yml
+      - name: Validate prometheus.yml
         run: |
           docker run --rm \
             --entrypoint promtool \
